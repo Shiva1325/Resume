@@ -1,0 +1,37 @@
+name: Deploy Resume from Overleaf
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Fetch Latest Resume from Overleaf
+      run: |
+        # Use the Overleaf API to download the latest PDF
+        curl -L -o resume.pdf \
+          -H "Authorization: Bearer ${{ secrets.OVERLEAF_API_TOKEN }}" \
+          "https://www.overleaf.com/project/${{ secrets.OVERLEAF_PROJECT_ID }}/output/output.pdf"
+
+    - name: Commit and Push Resume
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "actions@github.com"
+        git add resume.pdf
+        git diff --quiet && git diff --staged --quiet || git commit -m "Updated resume"
+        git push
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
