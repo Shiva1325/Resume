@@ -6,42 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Resume</title>
     <style>
-        /* Basic reset for margin and padding */
+        /* Reset for margin and padding */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* Body background */
+        /* Dark background with techy matrix feel */
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #4b6cb7, #182848); /* Blue gradient background */
-            background-size: cover;
+            font-family: 'Courier New', monospace; /* Code-like font */
+            background-color: #0e1e25; /* Dark blue background */
+            color: #fff; /* White text */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
-            animation: backgroundAnimation 20s linear infinite;
+            text-align: center;
+            position: relative;
         }
 
-        /* Animating background */
-        @keyframes backgroundAnimation {
-            0% {
-                background: linear-gradient(135deg, #4b6cb7, #182848);
-            }
-
-            50% {
-                background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            }
-
-            100% {
-                background: linear-gradient(135deg, #4b6cb7, #182848);
-            }
-        }
-
-        /* Adding a slight texture pattern for the techy look */
+        /* Adding the matrix effect background */
         body::before {
             content: '';
             position: absolute;
@@ -49,23 +35,40 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: url('https://www.transparenttextures.com/patterns/diagonal-stripes.png');
-            opacity: 0.1;
-            pointer-events: none;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-fabric.png'); /* Subtle texture */
+            opacity: 0.5;
         }
 
-        /* Centering content in the body */
+        /* Container for centered resume */
         .container {
+            z-index: 10;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            color: #fff;
-            animation: fadeIn 2s ease-out;
         }
 
-        /* Fade-in animation for the entire page */
+        /* Title - Techy, bold, and prominent */
+        h1 {
+            font-size: 4rem;
+            color: #00ff99; /* Neon green color */
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 8px rgba(0, 255, 153, 0.5); /* Neon glow effect */
+        }
+
+        /* Resume embed styling */
+        embed {
+            width: 80%;
+            height: 80%;
+            border: 2px solid #00ff99;
+            box-shadow: 0 4px 15px rgba(0, 255, 153, 0.3);
+            margin-top: 30px;
+            animation: fadeIn 2s ease-out; /* Animation to fade in */
+        }
+
+        /* Fade-in animation for elements */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -76,52 +79,41 @@
             }
         }
 
-        /* Header styling */
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Styling for the embedded PDF */
-        embed {
-            border: 2px solid #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 2s ease-out;
-        }
-
-        /* Button styling */
+        /* Download button with techy and bold styling */
         .download-btn {
             margin-top: 20px;
-            padding: 12px 30px;
+            padding: 15px 40px;
             font-size: 1.2rem;
-            border: 2px solid #fff;
-            border-radius: 5px;
+            font-weight: bold;
+            border: 2px solid #00ff99;
+            border-radius: 10px;
             background-color: transparent;
-            color: #fff;
+            color: #00ff99;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.3s ease;
+            text-transform: uppercase;
         }
 
         .download-btn:hover {
-            background-color: #4b6cb7;
+            background-color: #00ff99;
+            color: #0e1e25;
             transform: scale(1.1);
         }
 
-        /* Make the content responsive */
+        /* Responsiveness for mobile screens */
         @media screen and (max-width: 768px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
 
             embed {
                 width: 90%;
-                height: 80%;
+                height: 70%;
             }
 
             .download-btn {
                 font-size: 1rem;
-                padding: 10px 25px;
+                padding: 10px 30px;
             }
         }
     </style>
@@ -130,9 +122,10 @@
 <body>
 
     <div class="container">
-        <h1>Welcome to My Resume</h1>
+        <h1>My Resume</h1>
         <!-- Embed the latest resume PDF -->
-        <embed src="resume.pdf" type="application/pdf" width="80%" height="80%" />
+        <embed src="resume.pdf" type="application/pdf" />
+        <!-- Optional Download Button -->
         <a href="resume.pdf" class="download-btn" download>Download Resume</a>
     </div>
 
