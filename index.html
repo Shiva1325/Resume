@@ -1,26 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Resume</title>
     <style>
+        /* Basic reset for margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body background */
         body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4b6cb7, #182848); /* Blue gradient background */
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            background-color: #f8f9fa;
+            overflow: hidden;
+            animation: backgroundAnimation 20s linear infinite;
         }
+
+        /* Animating background */
+        @keyframes backgroundAnimation {
+            0% {
+                background: linear-gradient(135deg, #4b6cb7, #182848);
+            }
+
+            50% {
+                background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            }
+
+            100% {
+                background: linear-gradient(135deg, #4b6cb7, #182848);
+            }
+        }
+
+        /* Adding a slight texture pattern for the techy look */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/diagonal-stripes.png');
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        /* Centering content in the body */
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            animation: fadeIn 2s ease-out;
+        }
+
+        /* Fade-in animation for the entire page */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Header styling */
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Styling for the embedded PDF */
         embed {
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 2s ease-out;
+        }
+
+        /* Button styling */
+        .download-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            background-color: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #4b6cb7;
+            transform: scale(1.1);
+        }
+
+        /* Make the content responsive */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            embed {
+                width: 90%;
+                height: 80%;
+            }
+
+            .download-btn {
+                font-size: 1rem;
+                padding: 10px 25px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- Embed the latest resume PDF -->
-    <embed src="resume.pdf" type="application/pdf" width="80%" height="90%" />
+
+    <div class="container">
+        <h1>Welcome to My Resume</h1>
+        <!-- Embed the latest resume PDF -->
+        <embed src="resume.pdf" type="application/pdf" width="80%" height="80%" />
+        <a href="resume.pdf" class="download-btn" download>Download Resume</a>
+    </div>
+
 </body>
+
 </html>
