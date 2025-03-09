@@ -4,108 +4,97 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Resume</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   
-  <!-- Google Fonts: Orbitron for header and Poppins for body -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  
-  <!-- Animate.css for simple fade animations -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  
+  <!-- Animate.css for smooth fade-in -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
   <!-- GSAP for smooth reveal animations -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
-  
+
   <style>
-    /* Reset */
+    /* Basic Reset */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
-    /* Body with animated gradient background */
+
+    /* Body & Background */
     body {
-      font-family: 'Poppins', sans-serif;
-      background: #0d0d0d;
-      overflow-x: hidden;
+      font-family: 'Inter', sans-serif;
+      background-color: #121212;
       color: #fff;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
-    
-    /* Animated background gradient */
-    .animated-bg {
-      position: fixed;
+
+    /* Gradient Animated Background */
+    .background {
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(45deg, #1a1a1a, #0d0d0d, #1a1a1a);
+      background: linear-gradient(45deg, #1a1a1a, #2c2c2c, #1a1a1a);
       background-size: 600% 600%;
       animation: gradientAnimation 20s ease infinite;
       z-index: -1;
     }
-    
+
     @keyframes gradientAnimation {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    
-    /* Fixed header */
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 20px;
-      text-align: center;
-      z-index: 10;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 1.5rem;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-    }
-    
+
     /* Main container */
-    .main-container {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding-top: 80px; /* leave space for header */
+    .content {
       text-align: center;
+      z-index: 2;
     }
-    
-    /* Hero Title */
-    .hero-title {
+
+    /* Title */
+    .title {
       font-size: 3rem;
-      margin-bottom: 40px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 50px;
       letter-spacing: 2px;
-      color: #1abc9c;
       text-transform: uppercase;
     }
-    
-    /* Resume container */
+
+    /* Resume Container */
     .resume-container {
       width: 80%;
       max-width: 900px;
       height: 80vh;
-      background: rgba(20,20,20,0.9);
-      border: 2px solid #e74c3c;
-      border-radius: 10px;
+      background-color: #1f1f1f;
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
       transform: scale(0.95);
       opacity: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    
+
+    /* Embed PDF */
     .resume-container embed {
       width: 100%;
       height: 100%;
       border: none;
     }
-    
-    /* Responsive adjustments */
+
+    /* Responsive styles */
     @media (max-width: 768px) {
-      .hero-title {
+      .title {
         font-size: 2rem;
       }
       .resume-container {
@@ -116,21 +105,19 @@
   </style>
 </head>
 <body>
-  <!-- Animated background -->
-  <div class="animated-bg"></div>
-  
-  <!-- Fixed header -->
-  <header>My Resume</header>
-  
-  <!-- Main Content -->
-  <div class="main-container">
-    <div class="hero-title animate__animated animate__fadeInDown">Resume</div>
+
+  <!-- Background Animation -->
+  <div class="background"></div>
+
+  <!-- Content Area -->
+  <div class="content">
+    <div class="title animate__animated animate__fadeIn">My Resume</div>
     <div class="resume-container">
       <embed src="resume.pdf" type="application/pdf">
     </div>
   </div>
-  
-  <!-- GSAP Reveal Animation -->
+
+  <!-- GSAP Animation -->
   <script>
     gsap.to(".resume-container", {
       duration: 1.5,
@@ -140,5 +127,6 @@
       delay: 0.5
     });
   </script>
+
 </body>
 </html>
