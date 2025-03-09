@@ -17,6 +17,9 @@
   <!-- FontAwesome for icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js"></script>
 
+  <!-- PDF.js for rendering PDFs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
   <style>
     /* Body & Page Layout */
     body {
@@ -30,6 +33,7 @@
       justify-content: center;
       align-items: center;
       position: relative;
+      overflow: hidden;
     }
 
     /* Subtle tech-pattern overlay */
@@ -41,7 +45,7 @@
       width: 100%;
       height: 100%;
       background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
-      opacity: 0.3;
+      opacity: 0.2;
       z-index: 1;
     }
 
@@ -60,7 +64,7 @@
       animation: fadeIn 1s ease-out;
     }
 
-    /* Custom PDF Embedding (using PDF.js for a better experience) */
+    /* PDF Viewer */
     .pdf-viewer {
       width: 100%;
       height: 100%;
@@ -102,7 +106,7 @@
     /* Anime Character Styles */
     .anime-character {
       position: absolute;
-      max-width: 180px;
+      max-width: 150px;
       opacity: 0.85;
       transition: transform 0.5s ease;
       z-index: 0;
@@ -125,22 +129,19 @@
 </head>
 <body>
   <!-- Anime Characters -->
-  <img src="https://i.imgur.com/5A8gW5V.png" alt="Anime Tech Geek" class="anime-character anime-left animate__animated animate__fadeInLeft">
-  <img src="https://i.imgur.com/3S7b1Hn.png" alt="Anime Tech Geek" class="anime-character anime-right animate__animated animate__fadeInRight">
+  <img src="https://i.imgur.com/3VbWv7z.png" alt="Anime Tech Geek" class="anime-character anime-left animate__animated animate__fadeInLeft">
+  <img src="https://i.imgur.com/Uq3T7DJ.png" alt="Anime Tech Geek" class="anime-character anime-right animate__animated animate__fadeInRight">
 
   <!-- Resume Container -->
   <div class="resume-container animate__animated animate__fadeInUp">
     <!-- Download Button -->
-    <a class="download-btn" href="resume.pdf" download>
+    <a class="download-btn" href="https://your-github-username.github.io/repo-name/resume.pdf" download>
       <i class="fas fa-download"></i> Download PDF
     </a>
 
     <!-- PDF Viewer -->
     <div class="pdf-viewer" id="pdf-viewer"></div>
   </div>
-
-  <!-- Include PDF.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 
   <script>
     // Initialize PDF.js and load resume.pdf
