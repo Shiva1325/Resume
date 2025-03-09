@@ -5,147 +5,140 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Resume</title>
   
-  <!-- Google Fonts: Orbitron and Poppins for a sleek, professional look -->
+  <!-- Google Fonts: Orbitron for header and Poppins for body -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   
-  <!-- Custom CSS for smooth animations and modern design -->
+  <!-- Animate.css for simple fade animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <!-- GSAP for smooth reveal animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+  
   <style>
-    /* Global reset */
+    /* Reset */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-
-    /* Base Body Styling */
+    
+    /* Body with animated gradient background */
     body {
-      background: linear-gradient(135deg, #2e2e2e, #121212);
-      color: #fff;
       font-family: 'Poppins', sans-serif;
+      background: #0d0d0d;
+      overflow-x: hidden;
+      color: #fff;
+    }
+    
+    /* Animated background gradient */
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #1a1a1a, #0d0d0d, #1a1a1a);
+      background-size: 600% 600%;
+      animation: gradientAnimation 20s ease infinite;
+      z-index: -1;
+    }
+    
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* Fixed header */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      z-index: 10;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+    
+    /* Main container */
+    .main-container {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Header Section */
-    .header {
+      padding-top: 80px; /* leave space for header */
       text-align: center;
-      font-size: 2.8rem;
-      font-weight: 600;
-      color: #1abc9c;
-      margin-bottom: 20px;
+    }
+    
+    /* Hero Title */
+    .hero-title {
+      font-size: 3rem;
+      margin-bottom: 40px;
       letter-spacing: 2px;
+      color: #1abc9c;
       text-transform: uppercase;
-      animation: fadeIn 2s ease-out;
     }
-
-    /* FadeIn Animation */
-    @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Resume Container */
-    .resume-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      height: 80%;
-      padding: 20px;
-      animation: fadeInUp 2s ease-out;
-    }
-
-    /* Smoothly animate resume */
-    @keyframes fadeInUp {
-      0% {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
+    
+    /* Resume container */
     .resume-container {
       width: 80%;
       max-width: 900px;
-      height: 100%;
-      background-color: #1a1a1a;
+      height: 80vh;
+      background: rgba(20,20,20,0.9);
+      border: 2px solid #e74c3c;
       border-radius: 10px;
-      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
       overflow: hidden;
-      animation: scaleIn 2s ease-out;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      transform: scale(0.95);
+      opacity: 0;
     }
-
-    /* Resume embed with smooth fade-in effect */
-    embed {
+    
+    .resume-container embed {
       width: 100%;
       height: 100%;
       border: none;
-      opacity: 0;
-      animation: fadeIn 2s ease-out forwards;
     }
-
-    /* Scale-in effect */
-    @keyframes scaleIn {
-      0% {
-        transform: scale(0.95);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    /* Responsive design for smaller screens */
+    
+    /* Responsive adjustments */
     @media (max-width: 768px) {
-      .header {
+      .hero-title {
         font-size: 2rem;
-        margin-bottom: 15px;
       }
-
       .resume-container {
-        width: 95%;
-        height: 90%;
+        width: 90%;
+        height: 70vh;
       }
-
-      embed {
-        height: 100%;
-      }
-    }
-
-    /* Adding subtle hover effect to the entire resume container */
-    .resume-container:hover {
-      box-shadow: 0 25px 75px rgba(0, 0, 0, 0.4);
-      transform: translateY(-5px);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
   </style>
 </head>
-
 <body>
-  <!-- Header Section -->
-  <div class="header">
-    My Resume
-  </div>
-
-  <!-- Resume Embed Section -->
-  <div class="resume-wrapper">
+  <!-- Animated background -->
+  <div class="animated-bg"></div>
+  
+  <!-- Fixed header -->
+  <header>My Resume</header>
+  
+  <!-- Main Content -->
+  <div class="main-container">
+    <div class="hero-title animate__animated animate__fadeInDown">Resume</div>
     <div class="resume-container">
       <embed src="resume.pdf" type="application/pdf">
     </div>
   </div>
+  
+  <!-- GSAP Reveal Animation -->
+  <script>
+    gsap.to(".resume-container", {
+      duration: 1.5,
+      opacity: 1,
+      scale: 1,
+      ease: "power3.out",
+      delay: 0.5
+    });
+  </script>
 </body>
 </html>
