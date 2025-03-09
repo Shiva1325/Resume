@@ -1,227 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Resume</title>
-    <!-- Google Fonts: Orbitron for a techy, manly vibe -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
-    <!-- Animate.css for smooth animations -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <style>
-      /* Reset and Base Styles */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Resume</title>
+  
+  <!-- Google Fonts: Orbitron for a techy vibe -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Animate.css for smooth animations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  
+  <style>
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Base styles */
+    body {
+      background: #0d0d0d;
+      font-family: 'Orbitron', sans-serif;
+      color: #eee;
+      font-family: 'Orbitron', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
 
-      body {
-        background: #0d0d0d;
-        font-family: 'Orbitron', sans-serif;
-        color: #fff;
-        height: 100vh;
-        overflow: hidden;
-        position: relative;
-      }
+    /* Background Gradient and Overlay */
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+    }
 
-      .background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -2;
-        background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
-      }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
 
-      .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: -1;
-      }
+    /* Container for Resume and Header */
+    .container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
 
-      /* Anime Tech Geek Images */
-      .anime-img {
-        position: fixed;
-        width: 150px;
-        opacity: 0.9;
-        animation: float 4s ease-in-out infinite;
-      }
+    .header {
+      text-align: center;
+      font-size: 3rem;
+      margin-top: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #00bfff;
+      text-shadow: 2px 2px 8px rgba(0, 191, 255, 0.7);
+      animation: slideIn 1s ease-out;
+    }
 
-      .anime-img.left {
-        top: 15%;
-        left: 3%;
+    @keyframes slideIn {
+      0% {
+        transform: translateY(-100%);
       }
-
-      .anime-img.right {
-        bottom: 15%;
-        right: 3%;
+      100% {
+        transform: translateY(0);
       }
+    }
 
-      @keyframes float {
-        0%, 100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-20px);
-        }
+    /* Fullscreen Resume Embed */
+    .resume-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      animation: fadeIn 1s ease-out;
+    }
+
+    .resume-container {
+      position: relative;
+      z-index: 2;
+      width: 70%;
+      max-width: 800px;
+      height: 80%;
+      margin: 5% auto;
+      background: rgba(20, 20, 20, 0.9);
+      border: 2px solid #e74c3c;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    embed {
+      width: 100%;
+      height: 100%;
+      border: none;
+      box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
+      animation: fadeIn 1s ease-out;
+    }
+
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.95);
       }
-
-      /* Container for Resume and Header */
-      .container {
-        position: relative;
-        background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png');
-        opacity: 0.3;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
+      100% {
+        opacity: 1;
+        transform: scale(1);
       }
+    }
 
+    /* Download Button */
+    .download-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 30px;
+      background: #00bfff;
+      color: #0d0d0d;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: transform 0.3s ease;
+      z-index: 2;
+      opacity: 0.85;
+    }
+
+    .download-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
       .header {
-        font-size: 3rem;
-        font-weight: bold;
-        text-transform: uppercase;
-        color: #00bfff;
-        text-shadow: 2px 2px 8px rgba(0, 191, 255, 0.7);
-        margin-bottom: 20px;
-        text-align: center;
-        animation: fadeInUp 1s ease-out;
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* Resume container */
-      .resume-wrapper {
-        flex: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        width: 80%;
-        max-width: 900px;
+        font-size: 2rem;
       }
 
       .resume-container {
-        position: relative;
-        z-index: 2;
-        width: 100%;
-        height: 100%;
-        background: rgba(20, 20, 20, 0.9);
-        border: 2px solid #e74c3c;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-        overflow: hidden;
-        animation: fadeIn 1s ease-out;
+        width: 90%;
+        height: 70%;
       }
 
-      embed {
-        width: 100%;
-        height: 100%;
-        border: none;
-        box-shadow: 0 0 20px rgba(0, 191, 255, 0.5);
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      /* Download Button */
       .download-btn {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 15px 30px;
-        background: #00bfff;
-        color: #0d0d0d;
-        font-size: 1.2rem;
-        font-weight: bold;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        text-transform: uppercase;
-        transition: transform 0.3s ease;
-        z-index: 2;
+        font-size: 1rem;
+        padding: 10px 20px;
       }
+    }
+  </style>
+</head>
 
-      .download-btn:hover {
-        transform: scale(1.1);
-      }
+<body>
+  <!-- Background and Overlay -->
+  <div class="background"></div>
+  <div class="overlay"></div>
 
-      /* Responsive Adjustments */
-      @media (max-width: 768px) {
-        .header {
-          font-size: 2rem;
-        }
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Animated Header -->
+    <div class="header animate__animated animate__fadeInUp">My Resume</div>
 
-        .resume-container {
-          width: 90%;
-          height: 70%;
-        }
-
-        .download-btn {
-          font-size: 1rem;
-          padding: 10px 20px;
-        }
-
-        .anime-img {
-          width: 120px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Background and Overlay -->
-    <div class="background"></div>
-    <div class="overlay"></div>
-
-    <!-- Anime Tech Geek Images -->
-    <img src="https://i.imgur.com/ZJ3Z72U.png" alt="Anime Tech Geek" class="anime-img left" />
-    <img src="https://i.imgur.com/ZJ3Z72U.png" alt="Anime Tech Geek" class="anime-img right" />
-
-    <!-- Main Content -->
-    <div class="container">
-      <div class="header">My Resume</div>
-
-      <!-- Resume Wrapper -->
-      <div class="resume-wrapper">
-        <div class="resume-container">
-          <!-- Embed your resume PDF in full page -->
-          <embed src="resume.pdf" type="application/pdf" />
-        </div>
+    <div class="resume-wrapper">
+      <!-- Embed your resume PDF in full page -->
+      <div class="resume-container animate__animated animate__fadeInUp">
+        <embed src="resume.pdf" type="application/pdf">
       </div>
-
-      <!-- Download Button -->
-      <a href="resume.pdf" class="download-btn" download>Download Resume</a>
     </div>
 
-    <!-- Anime Character Images -->
-    <img src="https://i.imgur.com/5A8gW5V.png" alt="Anime Tech Geek" class="anime-character animate__animated animate__fadeInLeft">
-    <img src="https://i.imgur.com/3S7b1Hn.png" alt="Anime Tech Geek" class="anime-character animate__animated animate__fadeInRight">
-  </body>
+    <!-- Download Button -->
+    <a href="resume.pdf" class="download-btn" download>Download Resume</a>
+  </div>
+</body>
 </html>
