@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Downloads the compiled PDF from Overleaf using a stored session cookie.
+Triggers an Overleaf compile via API, then downloads the resulting PDF.
 Exit 0 = PDF updated. Exit 1 = unchanged. Exit 2 = error.
 """
-import os, sys, hashlib, requests
+import os, sys, hashlib, re, requests
 
 SESSION    = os.environ['OVERLEAF_SESSION']
 PROJECT_ID = os.environ.get('OVERLEAF_PROJECT_ID', '63b20a7df9ce7bcb5887cb22')
@@ -34,32 +34,91 @@ if '/login' in r.url:
     sys.exit(2)
 print(f'Session valid  →  {r.url}')
 
-# ── Try multiple known PDF URL formats ───────────────────────────
-pdf_urls = [
-    f'https://www.overleaf.com/project/{PROJECT_ID}/output/output.pdf',
-    f'https://www.overleaf.com/download/project/{PROJECT_ID}/build/latest/output/output.pdf',
-]
+# ── Get CSRF token from project page ─────────────────────────────
+r = sess.get(f'https://www.overleaf.com/project/{PROJECT_ID}', timeout=30)
+print(f'Project page: {r.status_code}')
 
-content = None
-for url in pdf_urls:
-    r = sess.get(url, timeout=60, allow_redirects=True)
-    print(f'Tried: {url}  →  {r.status_code}  ({len(r.content)} bytes)')
-    if r.status_code == 200 and r.content[:4] == b'%PDF':
-        content = r.content
+csrf_token = None
+for pattern in [
+    r'ol-csrfToken[^>]*?content="([^"]+)"',
+    r'"csrfToken"\s*:\s*"([^"]+)"',
+    r'name="_csrf"[^>]*?value="([^"]+)"',
+]:
+    m = re.search(pattern, r.text)
+    if m:
+        csrf_token = m.group(1)
+        print(f'CSRF token found (len={len(csrf_token)})')
         break
 
-if content is None:
-    print('ERROR: Could not download PDF from any URL')
+if not csrf_token:
+    csrf_token = sess.cookies.get('_csrf')
+    if csrf_token:
+        print('CSRF token from cookie')
+
+if not csrf_token:
+    print('ERROR: Could not find CSRF token in project page')
     sys.exit(2)
 
-# ── Compare and save ─────────────────────────────────────────────
-new_hash = hashlib.sha256(content).hexdigest()
-print(f'Downloaded {len(content):,} bytes  hash={new_hash[:12]}')
+# ── Trigger compile ───────────────────────────────────────────────
+print('Triggering compile…')
+compile_r = sess.post(
+    f'https://www.overleaf.com/project/{PROJECT_ID}/compile',
+    json={
+        'rootDoc_id': None,
+        'draft': False,
+        'check': 'silent',
+        'incrementalCompilesEnabled': True,
+        'compileGroup': 'standard',
+        'stopOnFirstError': False,
+    },
+    headers={
+        'X-CSRF-Token': csrf_token,
+        'Accept': 'application/json',
+    },
+    timeout=120,
+)
+print(f'Compile response: {compile_r.status_code}')
+
+if compile_r.status_code != 200:
+    print(f'ERROR: Compile API returned {compile_r.status_code}: {compile_r.text[:300]}')
+    sys.exit(2)
+
+data = compile_r.json()
+print(f'Compile status: {data.get("status")}')
+
+if data.get('status') not in ('success', 'clsi-maintenance'):
+    print(f'ERROR: Compile did not succeed: {data.get("status")}')
+    sys.exit(2)
+
+# ── Find PDF URL in compile output ────────────────────────────────
+pdf_url = None
+for f in data.get('outputFiles', []):
+    if f.get('path') == 'output.pdf':
+        pdf_url = 'https://www.overleaf.com' + f['url']
+        break
+
+if not pdf_url:
+    print(f'ERROR: No output.pdf in compile result. Files: {[f.get("path") for f in data.get("outputFiles", [])]}')
+    sys.exit(2)
+
+print(f'PDF URL: {pdf_url}')
+
+# ── Download PDF ──────────────────────────────────────────────────
+r = sess.get(pdf_url, timeout=60, allow_redirects=True)
+print(f'Download: {r.status_code}  {len(r.content):,} bytes')
+
+if r.status_code != 200 or not r.content.startswith(b'%PDF'):
+    print(f'ERROR: Got {r.status_code}, not a PDF (starts: {r.content[:40]})')
+    sys.exit(2)
+
+# ── Compare and save ──────────────────────────────────────────────
+new_hash = hashlib.sha256(r.content).hexdigest()
+print(f'hash={new_hash[:12]}')
 
 if old_hash == new_hash:
     print('PDF unchanged — skipping')
     sys.exit(1)
 
 with open(OUT_FILE, 'wb') as f:
-    f.write(content)
+    f.write(r.content)
 print('PDF updated')
