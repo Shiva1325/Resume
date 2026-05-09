@@ -78,6 +78,9 @@ compile_r = sess.post(
     timeout=120,
 )
 print(f'Compile response: {compile_r.status_code}')
+print(f'Compile resp headers: {dict(compile_r.headers)}')
+print(f'All cookies after compile: {dict(sess.cookies)}')
+print(f'Compile body: {compile_r.text[:800]}')
 
 if compile_r.status_code != 200:
     print(f'ERROR: Compile API returned {compile_r.status_code}: {compile_r.text[:300]}')
