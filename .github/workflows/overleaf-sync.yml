@@ -24,8 +24,7 @@ jobs:
         - name: Download PDF from Overleaf
           id: download                                                          
           env:                                              
-            OVERLEAF_EMAIL:      ${{ secrets.OVERLEAF_EMAIL }}
-            OVERLEAF_PASSWORD:   ${{ secrets.OVERLEAF_PASSWORD }}
+            OVERLEAF_SESSION:    ${{ secrets.OVERLEAF_SESSION }}
             OVERLEAF_PROJECT_ID: 63b20a7df9ce7bcb5887cb22                       
           run: |
             if python overleaf_download.py; then                                
