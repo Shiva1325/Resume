@@ -59,7 +59,8 @@ if not csrf_token:
     print('ERROR: Could not find CSRF token in project page')
     sys.exit(2)
 
-# ── Trigger compile ───────────────────────────────────────────────
+# ── Trigger compile (force=True ensures fresh files on CLSI) ─────
+import time
 print('Triggering compile…')
 compile_r = sess.post(
     f'https://www.overleaf.com/project/{PROJECT_ID}/compile',
@@ -67,9 +68,10 @@ compile_r = sess.post(
         'rootDoc_id': None,
         'draft': False,
         'check': 'silent',
-        'incrementalCompilesEnabled': True,
+        'incrementalCompilesEnabled': False,
         'compileGroup': 'standard',
         'stopOnFirstError': False,
+        'force': True,
     },
     headers={
         'X-CSRF-Token': csrf_token,
@@ -112,6 +114,9 @@ build_id  = pdf_file['build']
 exact_url = 'https://www.overleaf.com' + pdf_file['url']
 print(f'Build ID: {build_id}')
 print(f'Exact URL: {exact_url}')
+
+# Give CLSI a moment to flush the file to disk
+time.sleep(5)
 
 # ── Try download URLs (exact first, then fallbacks) ───────────────
 download_headers = {
