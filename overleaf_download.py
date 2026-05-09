@@ -29,8 +29,8 @@ with sync_playwright() as p:
     page.fill('input[type="email"]', EMAIL)
     page.fill('input[type="password"]', PASSWORD)
 
-    with page.expect_navigation(wait_until='networkidle', timeout=30000):
-        page.click('button[type="submit"]')
+    page.click('button[type="submit"]')
+    page.wait_for_url('**/project**', timeout=60000)
 
     if '/login' in page.url:
         print('ERROR: Login failed — check credentials')
