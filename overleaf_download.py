@@ -3,13 +3,11 @@
 Downloads the compiled PDF from Overleaf using a stored session cookie.
 Exit 0 = PDF updated. Exit 1 = unchanged. Exit 2 = error.
 """
-import os, sys, hashlib, shutil
-from playwright.sync_api import sync_playwright
+import os, sys, hashlib, requests
 
 SESSION    = os.environ['OVERLEAF_SESSION']
 PROJECT_ID = os.environ.get('OVERLEAF_PROJECT_ID', '63b20a7df9ce7bcb5887cb22')
 OUT_FILE   = 'resume.pdf'
-TMP_FILE   = '/tmp/resume_new.pdf'
 
 def sha256(path):
     if not os.path.exists(path):
@@ -19,63 +17,42 @@ def sha256(path):
 
 old_hash = sha256(OUT_FILE)
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=True)
-    context = browser.new_context(
-        user_agent=(
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        ),
-        viewport={'width': 1920, 'height': 1080},
-    )
+sess = requests.Session()
+sess.cookies.set('overleaf_session2', SESSION, domain='.overleaf.com', path='/')
+sess.headers.update({
+    'User-Agent': (
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    ),
+    'Referer': 'https://www.overleaf.com',
+})
 
-    # ── Inject session cookie ────────────────────────────────────
-    context.add_cookies([{
-        'name':     'overleaf_session2',
-        'value':    SESSION,
-        'domain':   '.overleaf.com',
-        'path':     '/',
-        'httpOnly': True,
-        'secure':   True,
-        'sameSite': 'Lax',
-    }])
+# ── Verify session ────────────────────────────────────────────────
+r = sess.get('https://www.overleaf.com/project', allow_redirects=True, timeout=30)
+if '/login' in r.url:
+    print('ERROR: Session expired — refresh OVERLEAF_SESSION secret')
+    sys.exit(2)
+print(f'Session valid  →  {r.url}')
 
-    page = context.new_page()
-    page.goto('https://www.overleaf.com/project', wait_until='domcontentloaded', timeout=30000)
+# ── Try multiple known PDF URL formats ───────────────────────────
+pdf_urls = [
+    f'https://www.overleaf.com/project/{PROJECT_ID}/output/output.pdf',
+    f'https://www.overleaf.com/download/project/{PROJECT_ID}/build/latest/output/output.pdf',
+]
 
-    if '/login' in page.url:
-        print('ERROR: Session cookie expired — refresh OVERLEAF_SESSION secret')
-        browser.close()
-        sys.exit(2)
+content = None
+for url in pdf_urls:
+    r = sess.get(url, timeout=60, allow_redirects=True)
+    print(f'Tried: {url}  →  {r.status_code}  ({len(r.content)} bytes)')
+    if r.status_code == 200 and r.content[:4] == b'%PDF':
+        content = r.content
+        break
 
-    print(f'Session valid  →  {page.url}')
-
-    # ── Download PDF via response body (avoids expect_download issues) ──
-    pdf_url = (f'https://www.overleaf.com/download/project/{PROJECT_ID}'
-               f'/build/latest/output/output.pdf')
-
-    response = page.goto(pdf_url, wait_until='commit', timeout=60000)
-
-    if response is None:
-        print('ERROR: No response from PDF URL')
-        browser.close()
-        sys.exit(2)
-
-    print(f'PDF response status: {response.status}  url: {response.url}')
-
-    if response.status != 200:
-        print(f'ERROR: PDF request returned {response.status}')
-        browser.close()
-        sys.exit(2)
-
-    content = response.body()
-    browser.close()
-
-# ── Validate ─────────────────────────────────────────────────────
-if not content.startswith(b'%PDF'):
-    print(f'ERROR: Response is not a PDF ({len(content)} bytes, starts with: {content[:40]})')
+if content is None:
+    print('ERROR: Could not download PDF from any URL')
     sys.exit(2)
 
+# ── Compare and save ─────────────────────────────────────────────
 new_hash = hashlib.sha256(content).hexdigest()
 print(f'Downloaded {len(content):,} bytes  hash={new_hash[:12]}')
 
@@ -83,7 +60,6 @@ if old_hash == new_hash:
     print('PDF unchanged — skipping')
     sys.exit(1)
 
-with open(TMP_FILE, 'wb') as f:
+with open(OUT_FILE, 'wb') as f:
     f.write(content)
-shutil.copy(TMP_FILE, OUT_FILE)
 print('PDF updated')
