@@ -17,9 +17,7 @@ jobs:
             python-version: '3.12'
 
         - name: Install dependencies
-          run: |                                                                         
-            pip install playwright                                                       
-            playwright install chromium --with-deps 
+          run: pip install requests
                                                                                 
         - name: Download PDF from Overleaf
           id: download                                                          
