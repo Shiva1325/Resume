@@ -29,7 +29,7 @@ with sync_playwright() as p:
         viewport={'width': 1920, 'height': 1080},
     )
 
-    # ── Inject session cookie (skip password login entirely) ──────
+    # ── Inject session cookie ────────────────────────────────────
     context.add_cookies([{
         'name':     'overleaf_session2',
         'value':    SESSION,
@@ -50,22 +50,30 @@ with sync_playwright() as p:
 
     print(f'Session valid  →  {page.url}')
 
-    # ── Download PDF ─────────────────────────────────────────────
+    # ── Download PDF via response body (avoids expect_download issues) ──
     pdf_url = (f'https://www.overleaf.com/download/project/{PROJECT_ID}'
                f'/build/latest/output/output.pdf')
 
-    with page.expect_download(timeout=60000) as dl:
-        page.goto(pdf_url)
+    response = page.goto(pdf_url, wait_until='commit', timeout=60000)
 
-    dl.value.save_as(TMP_FILE)
+    if response is None:
+        print('ERROR: No response from PDF URL')
+        browser.close()
+        sys.exit(2)
+
+    print(f'PDF response status: {response.status}  url: {response.url}')
+
+    if response.status != 200:
+        print(f'ERROR: PDF request returned {response.status}')
+        browser.close()
+        sys.exit(2)
+
+    content = response.body()
     browser.close()
 
 # ── Validate ─────────────────────────────────────────────────────
-with open(TMP_FILE, 'rb') as f:
-    content = f.read()
-
 if not content.startswith(b'%PDF'):
-    print(f'ERROR: not a PDF ({len(content)} bytes)')
+    print(f'ERROR: Response is not a PDF ({len(content)} bytes, starts with: {content[:40]})')
     sys.exit(2)
 
 new_hash = hashlib.sha256(content).hexdigest()
@@ -75,5 +83,7 @@ if old_hash == new_hash:
     print('PDF unchanged — skipping')
     sys.exit(1)
 
+with open(TMP_FILE, 'wb') as f:
+    f.write(content)
 shutil.copy(TMP_FILE, OUT_FILE)
 print('PDF updated')
