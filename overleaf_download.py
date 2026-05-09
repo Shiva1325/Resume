@@ -3,7 +3,7 @@
 Downloads the compiled PDF from Overleaf using Playwright (handles JS auth).
 Exit 0 = PDF updated. Exit 1 = unchanged. Exit 2 = error.
 """
-import os, sys, hashlib, shutil
+import os, sys, hashlib, shutil, time
 from playwright.sync_api import sync_playwright
 
 EMAIL      = os.environ['OVERLEAF_EMAIL']
@@ -22,20 +22,43 @@ old_hash = sha256(OUT_FILE)
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
-    page = browser.new_page()
+    context = browser.new_context(
+        user_agent=(
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+            '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        ),
+        viewport={'width': 1920, 'height': 1080},
+        locale='en-US',
+    )
+    page = context.new_page()
 
     # ── Login ────────────────────────────────────────────────────
-    page.goto('https://www.overleaf.com/login', wait_until='networkidle')
+    print('Navigating to Overleaf login…')
+    page.goto('https://www.overleaf.com/login', wait_until='domcontentloaded')
+    page.wait_for_selector('input[type="email"]', timeout=15000)
+
     page.fill('input[type="email"]', EMAIL)
     page.fill('input[type="password"]', PASSWORD)
-
     page.click('button[type="submit"]')
-    page.wait_for_url('**/project**', timeout=60000)
 
-    if '/login' in page.url:
-        print('ERROR: Login failed — check credentials')
-        browser.close()
-        sys.exit(2)
+    # Poll until we leave /login (handles SPA redirects and slow networks)
+    deadline = time.time() + 60
+    while True:
+        current = page.url
+        if '/login' not in current and current not in ('', 'about:blank'):
+            break
+        if time.time() > deadline:
+            # Dump page text to help diagnose bot-detection / errors
+            try:
+                alerts = page.query_selector_all('.alert, .notification, [role="alert"], .ol-flash')
+                for el in alerts:
+                    print(f'  Page alert: {el.text_content().strip()}')
+            except Exception:
+                pass
+            print(f'ERROR: Login timed out after 60s. URL: {current}')
+            browser.close()
+            sys.exit(2)
+        time.sleep(1)
 
     print(f'Logged in  →  {page.url}')
 
