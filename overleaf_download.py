@@ -90,25 +90,40 @@ if data.get('status') not in ('success', 'clsi-maintenance'):
     print(f'ERROR: Compile did not succeed: {data.get("status")}')
     sys.exit(2)
 
-# ── Find PDF URL in compile output ────────────────────────────────
-pdf_url = None
+# ── Find build ID from compile output ────────────────────────────
+build_id = None
 for f in data.get('outputFiles', []):
     if f.get('path') == 'output.pdf':
-        pdf_url = 'https://www.overleaf.com' + f['url']
+        build_id = f.get('build')
         break
 
-if not pdf_url:
+if not build_id:
     print(f'ERROR: No output.pdf in compile result. Files: {[f.get("path") for f in data.get("outputFiles", [])]}')
     sys.exit(2)
 
-print(f'PDF URL: {pdf_url}')
+print(f'Build ID: {build_id}')
 
-# ── Download PDF ──────────────────────────────────────────────────
-r = sess.get(pdf_url, timeout=60, allow_redirects=True)
-print(f'Download: {r.status_code}  {len(r.content):,} bytes')
+# ── Try multiple download URL formats ────────────────────────────
+download_headers = {
+    'Referer': f'https://www.overleaf.com/project/{PROJECT_ID}',
+    'Accept': 'application/pdf,*/*',
+}
+pdf_urls = [
+    f'https://www.overleaf.com/download/project/{PROJECT_ID}/build/{build_id}/output/output.pdf',
+    f'https://www.overleaf.com/download/project/{PROJECT_ID}/build/{build_id}/output/output.pdf?compileGroup=standard',
+    f'https://www.overleaf.com/project/{PROJECT_ID}/build/{build_id}/output/output.pdf',
+]
 
-if r.status_code != 200 or not r.content.startswith(b'%PDF'):
-    print(f'ERROR: Got {r.status_code}, not a PDF (starts: {r.content[:40]})')
+content = None
+for url in pdf_urls:
+    r = sess.get(url, timeout=60, allow_redirects=True, headers=download_headers)
+    print(f'Tried: {url.split("/build/")[1][:30]}…  →  {r.status_code}  {len(r.content)} bytes')
+    if r.status_code == 200 and r.content[:4] == b'%PDF':
+        content = r.content
+        break
+
+if content is None:
+    print('ERROR: All download URLs failed')
     sys.exit(2)
 
 # ── Compare and save ──────────────────────────────────────────────
