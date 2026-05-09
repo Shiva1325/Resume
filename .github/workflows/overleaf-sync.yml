@@ -1,0 +1,53 @@
+name: Sync Resume from Overleaf                                               
+on:
+    schedule:                                                                   
+      - cron: '*/15 * * * *'                                
+    workflow_dispatch:
+permissions:
+    contents: write
+jobs:
+    sync:
+      runs-on: ubuntu-latest
+
+      steps:                                                                    
+        - uses: actions/checkout@v4
+                                                                                
+        - uses: actions/setup-python@v5                     
+          with:
+            python-version: '3.12'
+
+        - name: Install dependencies
+          run: pip install requests beautifulsoup4
+                                                                                
+        - name: Download PDF from Overleaf
+          id: download                                                          
+          env:                                              
+            OVERLEAF_EMAIL:      ${{ secrets.OVERLEAF_EMAIL }}
+            OVERLEAF_PASSWORD:   ${{ secrets.OVERLEAF_PASSWORD }}
+            OVERLEAF_PROJECT_ID: 63b20a7df9ce7bcb5887cb22                       
+          run: |
+            if python overleaf_download.py; then                                
+              echo "changed=true" >> $GITHUB_OUTPUT                             
+            else
+              echo "changed=false" >> $GITHUB_OUTPUT                            
+            fi                                              
+
+        - name: Commit updated PDF
+          if: steps.download.outputs.changed == 'true'
+          run: |                                                                
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            echo "{\"synced\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > resume-meta.json                                                              
+            git add resume.pdf resume-meta.json
+            git commit -m "chore: sync resume from Overleaf [skip ci]"          
+            git push                                                            
+  
+        - name: Trigger portfolio redeploy                                      
+          if: steps.download.outputs.changed == 'true'      
+          run: |
+            curl -s -X POST \
+              "https://api.github.com/repos/Shiva1325/portfolio/dispatches" \
+              -H "Authorization: token ${{ secrets.PORTFOLIO_DEPLOY_TOKEN }}" \ 
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{"event_type":"resume-updated"}'                              
+            echo "Portfolio deploy triggered"
