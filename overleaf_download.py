@@ -90,6 +90,8 @@ print(f'Compile status: {data.get("status")}')
 clsi_server_id = data.get('clsiServerId', '')
 if clsi_server_id:
     print(f'CLSI Server ID: {clsi_server_id}')
+    # Must be a cookie (not a header) — this is how the browser routes to the right CLSI instance
+    sess.cookies.set('clsiServerId', clsi_server_id, domain='.overleaf.com', path='/')
 
 if data.get('status') not in ('success', 'clsi-maintenance'):
     print(f'ERROR: Compile did not succeed: {data.get("status")}')
@@ -116,8 +118,6 @@ download_headers = {
     'Referer': f'https://www.overleaf.com/project/{PROJECT_ID}',
     'Accept': 'application/pdf,*/*',
 }
-if clsi_server_id:
-    download_headers['X-CLSI-Server-Id'] = clsi_server_id
 
 pdf_urls = [
     exact_url,
