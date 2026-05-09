@@ -78,9 +78,8 @@ compile_r = sess.post(
     timeout=120,
 )
 print(f'Compile response: {compile_r.status_code}')
-print(f'Compile resp headers: {dict(compile_r.headers)}')
 print(f'All cookies after compile: {dict(sess.cookies)}')
-print(f'Compile body: {compile_r.text[:800]}')
+print(f'Compile body: {compile_r.text[:2000]}')
 
 if compile_r.status_code != 200:
     print(f'ERROR: Compile API returned {compile_r.status_code}: {compile_r.text[:300]}')
@@ -88,42 +87,53 @@ if compile_r.status_code != 200:
 
 data = compile_r.json()
 print(f'Compile status: {data.get("status")}')
+clsi_server_id = data.get('clsiServerId', '')
+if clsi_server_id:
+    print(f'CLSI Server ID: {clsi_server_id}')
 
 if data.get('status') not in ('success', 'clsi-maintenance'):
     print(f'ERROR: Compile did not succeed: {data.get("status")}')
     sys.exit(2)
 
-# ── Find build ID from compile output ────────────────────────────
-build_id = None
+# ── Find PDF output file ──────────────────────────────────────────
+pdf_file = None
 for f in data.get('outputFiles', []):
     if f.get('path') == 'output.pdf':
-        build_id = f.get('build')
+        pdf_file = f
         break
 
-if not build_id:
+if not pdf_file:
     print(f'ERROR: No output.pdf in compile result. Files: {[f.get("path") for f in data.get("outputFiles", [])]}')
     sys.exit(2)
 
+build_id  = pdf_file['build']
+exact_url = 'https://www.overleaf.com' + pdf_file['url']
 print(f'Build ID: {build_id}')
+print(f'Exact URL: {exact_url}')
 
-# ── Try multiple download URL formats ────────────────────────────
+# ── Try download URLs (exact first, then fallbacks) ───────────────
 download_headers = {
     'Referer': f'https://www.overleaf.com/project/{PROJECT_ID}',
     'Accept': 'application/pdf,*/*',
 }
+if clsi_server_id:
+    download_headers['X-CLSI-Server-Id'] = clsi_server_id
+
 pdf_urls = [
+    exact_url,
     f'https://www.overleaf.com/download/project/{PROJECT_ID}/build/{build_id}/output/output.pdf',
     f'https://www.overleaf.com/download/project/{PROJECT_ID}/build/{build_id}/output/output.pdf?compileGroup=standard',
-    f'https://www.overleaf.com/project/{PROJECT_ID}/build/{build_id}/output/output.pdf',
 ]
 
 content = None
 for url in pdf_urls:
     r = sess.get(url, timeout=60, allow_redirects=True, headers=download_headers)
-    print(f'Tried: {url.split("/build/")[1][:30]}…  →  {r.status_code}  {len(r.content)} bytes')
+    print(f'  {r.status_code}  {len(r.content)} bytes  ← {url[-60:]}')
     if r.status_code == 200 and r.content[:4] == b'%PDF':
         content = r.content
         break
+    if r.status_code != 200:
+        print(f'    Response headers: {dict(r.headers)}')
 
 if content is None:
     print('ERROR: All download URLs failed')
